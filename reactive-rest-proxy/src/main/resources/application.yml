@@ -1,0 +1,50 @@
+# Shows the configuration template for integration with real Kafka cluster.
+spring:
+  profiles:
+    # By default run with local profile
+    active: local
+  kafka:
+    bootstrap-servers: OVERRIDE_ME
+    jaas:
+      enabled: true
+      login-module: org.apache.kafka.common.security.scram.ScramLoginModule
+      options:
+        username: OVERRIDE_ME
+        password: OVERRIDE_ME
+    properties:
+      security:
+        protocol: SASL_SSL
+      sasl:
+        mechanism: SCRAM-SHA-512
+      schema:
+        registry:
+          url: OVERRIDE_ME
+      basic:
+        auth:
+          credentials:
+            source: SASL_INHERIT
+      specific:
+        avro:
+          reader: true
+      auto:
+        register:
+          schemas: false
+    consumer:
+      group-id: demo-gateway
+#      enable-auto-commit: false
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      properties:
+        max:
+          block:
+            ms: 20000
+
+app:
+  kafka:
+    request-topic: test-request-topic
+    response-topic: test-response-topic
+    alternative-topic: alternative-response-topic

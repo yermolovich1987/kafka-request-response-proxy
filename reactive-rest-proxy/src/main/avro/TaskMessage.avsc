@@ -1,0 +1,8 @@
+{
+  "namespace": "com.dimasco.demokafkaconsumer",
+  "name": "TaskMessage",
+  "type": "record",
+  "fields": [
+    {"name": "id", "type": "long"}
+  ]
+}
