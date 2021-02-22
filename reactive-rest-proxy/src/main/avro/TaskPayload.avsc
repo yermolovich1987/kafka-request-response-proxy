@@ -1,6 +1,6 @@
 {
-  "namespace": "com.dimasco.demokafkaconsumer",
-  "name": "TaskMessage",
+  "namespace": "com.dimasco.avro",
+  "name": "TaskPayload",
   "type": "record",
   "fields": [
     {"name": "id", "type": "long"}

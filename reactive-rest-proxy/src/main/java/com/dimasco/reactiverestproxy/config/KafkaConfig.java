@@ -1,6 +1,7 @@
 package com.dimasco.reactiverestproxy.config;
 
-import com.dimasco.demokafkaconsumer.TaskMessage;
+import com.dimasco.avro.TaskPayload;
+import com.dimasco.avro.TaskSubmissionResultPayload;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,10 +24,12 @@ public class KafkaConfig {
   private String groupId;
 
   @Bean
-  public ReplyingKafkaTemplate<String, TaskMessage, String> replyingKafkaTemplate(
-      ProducerFactory<String, TaskMessage> pf,
-      ConcurrentMessageListenerContainer<String, String> repliesContainer) {
-    ReplyingKafkaTemplate<String, TaskMessage, String> replyingKafkaTemplate =
+  public ReplyingKafkaTemplate<String, TaskPayload, TaskSubmissionResultPayload>
+      replyingKafkaTemplate(
+          ProducerFactory<String, TaskPayload> pf,
+          ConcurrentMessageListenerContainer<String, TaskSubmissionResultPayload>
+              repliesContainer) {
+    ReplyingKafkaTemplate<String, TaskPayload, TaskSubmissionResultPayload> replyingKafkaTemplate =
         new ReplyingKafkaTemplate<>(pf, repliesContainer);
 
     replyingKafkaTemplate.setSharedReplyTopic(true);
@@ -35,14 +38,16 @@ public class KafkaConfig {
   }
 
   @Bean
-  public ConcurrentMessageListenerContainer<String, String> repliesContainer(
-      ConcurrentKafkaListenerContainerFactory<String, String> containerFactory) {
+  public ConcurrentMessageListenerContainer<String, TaskSubmissionResultPayload> repliesContainer(
+      ConcurrentKafkaListenerContainerFactory<String, TaskSubmissionResultPayload>
+          containerFactory) {
 
-    ConcurrentMessageListenerContainer<String, String> repliesContainer =
+    ConcurrentMessageListenerContainer<String, TaskSubmissionResultPayload> repliesContainer =
         containerFactory.createContainer(replyTopic);
 
     // When configuring with a single reply topic, each instance must use a different group.id.
-    // In this case, all instances receive each reply, but only the instance that sent the request finds the correlation ID.
+    // In this case, all instances receive each reply, but only the instance that sent the request
+    // finds the correlation ID.
     // This may be useful for auto-scaling, but with the overhead of additional network traffic
     // and the small cost of discarding each unwanted reply. When you use this setting,
     // we recommend that you set the template’s sharedReplyTopic to true,
@@ -50,9 +55,10 @@ public class KafkaConfig {
     repliesContainer.getContainerProperties().setGroupId(groupId + UUID.randomUUID().toString());
     repliesContainer.setAutoStartup(false);
     Properties props = new Properties();
-    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest"); // so the new group doesn't get old replies
+    props.setProperty(
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+        "latest"); // so the new group doesn't get old replies
     repliesContainer.getContainerProperties().setKafkaConsumerProperties(props);
     return repliesContainer;
   }
-
 }

@@ -1,0 +1,54 @@
+{
+  "namespace": "com.dimasco.avro",
+  "name": "TaskSubmissionResultPayload",
+  "type": "record",
+  "fields": [
+    {
+      "name": "taskId",
+      "type": "long"
+    },
+    {
+      "name": "status",
+      "type": {
+        "name": "Status",
+        "type": "enum",
+        "symbols": [
+          "SUCCESS",
+          "FAILED"
+        ]
+      }
+    },
+    {
+      "name": "errorDetails",
+      "type": {
+        "type": "array",
+        "items": {
+          "name": "ErrorDetail",
+          "type": "record",
+          "fields": [
+            {
+              "name": "errorCode",
+              "type": [
+                "null",
+                {
+                  "type": "string"
+                }
+              ],
+              "default": null
+            },
+            {
+              "name": "errorMessage",
+              "type": [
+                "null",
+                {
+                  "type": "string"
+                }
+              ],
+              "default": null
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
